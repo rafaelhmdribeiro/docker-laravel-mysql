@@ -1,0 +1,41 @@
+version: '3.5'
+ 
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pswrd
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pswrd
+    networks:
+      - app-network
+  
+  app:
+    build:
+      context: '.'
+      args:
+        uid: 1000
+    container_name: app
+    restart: always
+    ports:
+      - 8000:80
+    environment:
+      - APACHE_RUN_USER=#1000
+      - APACHE_RUN_GROUP=#1000
+    volumes:
+      - .:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - mysql
+          
+networks:
+  app-network:
+    driver: bridge
